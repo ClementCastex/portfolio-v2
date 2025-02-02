@@ -33,12 +33,22 @@ class Project
     #[ORM\Column(nullable: true)]
     private ?string $detailPage = null;
 
+    #[ORM\Column(type: 'string', length: 20)]
+    private ?string $status = null;
+    
+
     #[ORM\OneToMany(mappedBy: "project", targetEntity: Image::class, cascade: ["persist", "remove"])]
     private Collection $images;
 
+    #[ORM\ManyToMany(targetEntity: Tag::class, inversedBy: "projects", cascade: ["persist"])]
+    #[ORM\JoinTable(name: "project_tag")]
+    private Collection $tags;
+    
+
     public function __construct()
     {
-        $this->images = new ArrayCollection();
+    $this->images = new ArrayCollection();
+    $this->tags = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -124,5 +134,35 @@ class Project
             $image->setProject($this);
         }
         return $this;
+    }
+
+public function getStatus(): ?ProjectStatus
+{
+    return $this->status ? ProjectStatus::from($this->status) : null;
+}
+
+public function setStatus(ProjectStatus $status): self
+{
+    $this->status = $status->value;
+    return $this;
+}
+
+    public function getTags(): Collection
+    {
+    return $this->tags;
+    }
+
+    public function addTag(Tag $tag): self
+    {
+    if (!$this->tags->contains($tag)) {
+        $this->tags->add($tag);
+    }
+    return $this;
+    }
+
+    public function removeTag(Tag $tag): self
+    {
+    $this->tags->removeElement($tag);
+    return $this;
     }
 }

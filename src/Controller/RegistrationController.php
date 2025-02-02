@@ -24,22 +24,23 @@ class RegistrationController extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-            // Hacher le mot de passe
+            // Encodage du mot de passe
             $hashedPassword = $passwordHasher->hashPassword(
                 $user,
                 $form->get('plainPassword')->getData()
             );
             $user->setPassword($hashedPassword);
 
-            // Assigner un rôle par défaut
-            $user->setRoles(['ROLE_USER']);
+            // Définir le rôle par défaut
+            $user->setRoles(['ROLE_VISITOR']);
 
-            // Enregistrer l'utilisateur dans la base de données
+            // Sauvegarder dans la base de données
             $entityManager->persist($user);
             $entityManager->flush();
 
-            // Rediriger après l'inscription
-            return $this->redirectToRoute('app_home');
+            // Rediriger vers la page de connexion
+            $this->addFlash('success', 'Votre inscription a été effectuée avec succès !');
+            return $this->redirectToRoute('app_login');
         }
 
         return $this->render('registration/register.html.twig', [
@@ -47,3 +48,4 @@ class RegistrationController extends AbstractController
         ]);
     }
 }
+
